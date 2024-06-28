@@ -1,5 +1,6 @@
 package ep2024.u5w2d5.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ep2024.u5w2d5.enums.DeviceAvailability;
 import ep2024.u5w2d5.enums.DeviceType;
 import jakarta.persistence.*;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "employee")
 public class Device {
     @Id
     @GeneratedValue
@@ -27,12 +28,12 @@ public class Device {
     private DeviceAvailability availability;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id")
+    @JsonIgnore
     private Employee employee;
 
-    public Device(DeviceType type, DeviceAvailability availability, Employee employee) {
+    public Device(DeviceType type, DeviceAvailability availability) {
         this.type = type;
         this.availability = availability;
-        this.employee = employee;
     }
 }

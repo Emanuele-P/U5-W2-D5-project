@@ -44,7 +44,9 @@ public class EmployeesService {
     }
 
     public Employee findById(UUID employeeId) {
-        return employeesDAO.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
+        Employee employee = employeesDAO.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
+        employee.getDevices().size();
+        return employee;
     }
 
     public void findByIdAndDelete(UUID employeeId) {

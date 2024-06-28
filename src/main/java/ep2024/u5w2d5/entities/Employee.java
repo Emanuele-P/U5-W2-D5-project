@@ -3,6 +3,8 @@ package ep2024.u5w2d5.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -10,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "devices")
 public class Employee {
     @Id
     @GeneratedValue
@@ -26,6 +28,9 @@ public class Employee {
     private String email;
     @Column(name = "avatar_url")
     private String avatarURL;
+
+    @OneToMany(mappedBy = "employee")
+    private List<Device> devices = new ArrayList<>();
 
     public Employee(String username, String firstName, String lastName, String email, String avatarURL) {
         this.username = username;

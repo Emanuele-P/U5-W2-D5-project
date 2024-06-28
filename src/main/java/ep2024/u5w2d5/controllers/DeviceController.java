@@ -59,4 +59,10 @@ public class DeviceController {
     public void findDevicesByIdAndDelete(@PathVariable UUID id) {
         deviceService.findByIdAndDelete(id);
     }
+
+    //6. ASSIGN DEVICE http://localhost:3001/devices/{deviceId}/assign/{employeeId}}
+    @PutMapping("/{deviceId}/assign/{employeeId}")
+    public Device assignDeviceToEmployee(@PathVariable UUID deviceId, @PathVariable UUID employeeId) {
+        return deviceService.assignDevice(deviceId, employeeId);
+    }
 }

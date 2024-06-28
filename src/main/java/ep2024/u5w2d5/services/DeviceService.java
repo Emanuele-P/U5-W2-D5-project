@@ -27,8 +27,6 @@ public class DeviceService {
     private EmployeesDAO employeesDAO;
 
     public Device save(DeviceDTO body) {
-        Employee employee = employeesDAO.findById(body.employeeId()).orElseThrow(() -> new NotFoundException(body.employeeId()));
-
         DeviceType type;
         try {
             type = DeviceType.valueOf(body.type().toUpperCase());
@@ -39,11 +37,14 @@ public class DeviceService {
         DeviceAvailability availability;
         try {
             availability = DeviceAvailability.valueOf(body.availability().toUpperCase());
+            if (availability == DeviceAvailability.ASSIGNED) {
+                throw new BadRequestException("Devices cannot be created with ASSIGNED status");
+            }
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Invalid device type: " + body.availability());
         }
 
-        Device newDevice = new Device(type, availability, employee);
+        Device newDevice = new Device(type, availability);
         return devicesDAO.save(newDevice);
     }
 
@@ -64,7 +65,6 @@ public class DeviceService {
 
     public Device findByIdAndUpdate(UUID deviceID, DeviceDTO updatedDevice) {
         Device found = this.findById(deviceID);
-        Employee employee = employeesDAO.findById(updatedDevice.employeeId()).orElseThrow(() -> new NotFoundException(updatedDevice.employeeId()));
 
         DeviceType type;
         try {
@@ -76,13 +76,27 @@ public class DeviceService {
         DeviceAvailability availability;
         try {
             availability = DeviceAvailability.valueOf(updatedDevice.availability().toUpperCase());
+            if (availability == DeviceAvailability.ASSIGNED) {
+                throw new BadRequestException("To change it to ASSIGNED, you need to assign it to an employee");
+            }
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Invalid device type: " + updatedDevice.availability());
         }
 
         found.setType(type);
         found.setAvailability(availability);
-        found.setEmployee(employee);
         return devicesDAO.save(found);
+    }
+
+    public Device assignDevice(UUID deviceId, UUID employeeId) {
+        Device device = this.findById(deviceId);
+        if (device.getAvailability() != DeviceAvailability.AVAILABLE) {
+            throw new BadRequestException("Device is not available for assignment");
+        }
+
+        Employee employee = employeesDAO.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
+        device.setEmployee(employee);
+        device.setAvailability(DeviceAvailability.ASSIGNED);
+        return devicesDAO.save(device);
     }
 }
