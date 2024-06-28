@@ -24,6 +24,7 @@ public class Employee {
     private String lastName;
 
     private String email;
+    @Column(name = "avatar_url")
     private String avatarURL;
 
     public Employee(String username, String firstName, String lastName, String email, String avatarURL) {
