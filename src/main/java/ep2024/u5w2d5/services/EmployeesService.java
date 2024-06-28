@@ -2,10 +2,13 @@ package ep2024.u5w2d5.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import ep2024.u5w2d5.entities.Device;
 import ep2024.u5w2d5.entities.Employee;
+import ep2024.u5w2d5.enums.DeviceAvailability;
 import ep2024.u5w2d5.exceptions.BadRequestException;
 import ep2024.u5w2d5.exceptions.NotFoundException;
 import ep2024.u5w2d5.payloads.EmployeeDTO;
+import ep2024.u5w2d5.repositories.DevicesDAO;
 import ep2024.u5w2d5.repositories.EmployeesDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +25,9 @@ import java.util.UUID;
 public class EmployeesService {
     @Autowired
     private EmployeesDAO employeesDAO;
+
+    @Autowired
+    private DevicesDAO devicesDAO;
 
     @Autowired
     private Cloudinary cloudinaryUploader;
@@ -51,6 +57,12 @@ public class EmployeesService {
 
     public void findByIdAndDelete(UUID employeeId) {
         Employee found = this.findById(employeeId);
+        for (Device device : found.getDevices()) {
+            device.setAvailability(DeviceAvailability.AVAILABLE);
+            device.setEmployee(null);
+            devicesDAO.save(device);
+        }
+        found.getDevices().clear();
         employeesDAO.delete(found);
     }
 
