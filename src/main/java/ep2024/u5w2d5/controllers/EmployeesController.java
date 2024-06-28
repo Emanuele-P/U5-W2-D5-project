@@ -2,7 +2,7 @@ package ep2024.u5w2d5.controllers;
 
 import ep2024.u5w2d5.entities.Employee;
 import ep2024.u5w2d5.exceptions.BadRequestException;
-import ep2024.u5w2d5.payloads.NewEmployeeDTO;
+import ep2024.u5w2d5.payloads.EmployeeDTO;
 import ep2024.u5w2d5.services.EmployeesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,7 @@ public class EmployeesController {
     //2. POST http://localhost:3001/employees (+body)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Employee save(@RequestBody @Validated NewEmployeeDTO body, BindingResult validationResult) {
+    public Employee save(@RequestBody @Validated EmployeeDTO body, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             System.out.println(validationResult.getAllErrors());
             throw new BadRequestException(validationResult.getAllErrors());
@@ -48,7 +48,7 @@ public class EmployeesController {
 
     //4. PUT http://localhost:3001/employees/{id} (+body)
     @PutMapping("/{id}")
-    public Employee findEmployeeByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated NewEmployeeDTO body, BindingResult validationResult) {
+    public Employee findEmployeeByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated EmployeeDTO body, BindingResult validationResult) {
         if (validationResult.hasErrors()) {
             System.out.println(validationResult.getAllErrors());
             throw new BadRequestException(validationResult.getAllErrors());

@@ -5,7 +5,7 @@ import com.cloudinary.utils.ObjectUtils;
 import ep2024.u5w2d5.entities.Employee;
 import ep2024.u5w2d5.exceptions.BadRequestException;
 import ep2024.u5w2d5.exceptions.NotFoundException;
-import ep2024.u5w2d5.payloads.NewEmployeeDTO;
+import ep2024.u5w2d5.payloads.EmployeeDTO;
 import ep2024.u5w2d5.repositories.EmployeesDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,7 +26,7 @@ public class EmployeesService {
     @Autowired
     private Cloudinary cloudinaryUploader;
 
-    public Employee save(NewEmployeeDTO body) {
+    public Employee save(EmployeeDTO body) {
         employeesDAO.findByEmail(body.email()).ifPresent(
                 employee -> {
                     throw new BadRequestException("The email: " + body.email() + " is already in use!");
@@ -58,7 +58,7 @@ public class EmployeesService {
         return employeesDAO.findAll(pageable);
     }
 
-    public Employee findByIdAndUpdate(UUID employeeId, NewEmployeeDTO updatedEmployee) {
+    public Employee findByIdAndUpdate(UUID employeeId, EmployeeDTO updatedEmployee) {
         Employee found = this.findById(employeeId);
         found.setUsername(updatedEmployee.username());
         found.setFirstName(updatedEmployee.firstName());

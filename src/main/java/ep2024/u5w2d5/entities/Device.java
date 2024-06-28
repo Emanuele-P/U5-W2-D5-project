@@ -20,8 +20,10 @@ public class Device {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DeviceType type;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DeviceAvailability availability;
 
     @ManyToOne
