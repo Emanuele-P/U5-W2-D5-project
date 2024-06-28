@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -64,5 +65,11 @@ public class DeviceController {
     @PutMapping("/{deviceId}/assign/{employeeId}")
     public Device assignDeviceToEmployee(@PathVariable UUID deviceId, @PathVariable UUID employeeId) {
         return deviceService.assignDevice(deviceId, employeeId);
+    }
+
+    // 7. GET all assigned devices http://localhost:3001/devices/assigned
+    @GetMapping("/assigned")
+    public List<Device> getAllAssignedDevices() {
+        return deviceService.getAllAssignedDevices();
     }
 }

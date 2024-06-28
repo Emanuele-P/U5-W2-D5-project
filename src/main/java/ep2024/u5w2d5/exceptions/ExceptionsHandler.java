@@ -25,9 +25,21 @@ public class ExceptionsHandler {
         }
     }
 
+    @ExceptionHandler(DeviceAlreadyAssignedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorsDTO handleDeviceAlreadyAssigned(DeviceAlreadyAssignedException ex) {
+        return new ErrorsDTO(ex.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorsDTO handleNotFound(NotFoundException ex) {
+        return new ErrorsDTO(ex.getMessage(), LocalDateTime.now());
+    }
+
+    @ExceptionHandler(NoAssignedDevicesException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorsDTO handleNoAssignedDevices(NoAssignedDevicesException ex) {
         return new ErrorsDTO(ex.getMessage(), LocalDateTime.now());
     }
 

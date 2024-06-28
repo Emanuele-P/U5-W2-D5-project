@@ -5,6 +5,8 @@ import ep2024.u5w2d5.entities.Employee;
 import ep2024.u5w2d5.enums.DeviceAvailability;
 import ep2024.u5w2d5.enums.DeviceType;
 import ep2024.u5w2d5.exceptions.BadRequestException;
+import ep2024.u5w2d5.exceptions.DeviceAlreadyAssignedException;
+import ep2024.u5w2d5.exceptions.NoAssignedDevicesException;
 import ep2024.u5w2d5.exceptions.NotFoundException;
 import ep2024.u5w2d5.payloads.DeviceDTO;
 import ep2024.u5w2d5.repositories.DevicesDAO;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -73,30 +76,44 @@ public class DeviceService {
             throw new BadRequestException("Invalid device type: " + updatedDevice.type());
         }
 
-        DeviceAvailability availability;
+        DeviceAvailability newAvailability;
         try {
-            availability = DeviceAvailability.valueOf(updatedDevice.availability().toUpperCase());
-            if (availability == DeviceAvailability.ASSIGNED) {
-                throw new BadRequestException("To change it to ASSIGNED, you need to assign it to an employee");
-            }
+            newAvailability = DeviceAvailability.valueOf(updatedDevice.availability().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Invalid device type: " + updatedDevice.availability());
+            throw new BadRequestException("Invalid device availability: " + updatedDevice.availability());
+        }
+
+        if (newAvailability == DeviceAvailability.AVAILABLE && found.getAvailability() == DeviceAvailability.ASSIGNED) {
+            if (found.getEmployee() != null) {
+                found.setEmployee(null);
+            }
         }
 
         found.setType(type);
-        found.setAvailability(availability);
+        found.setAvailability(newAvailability);
         return devicesDAO.save(found);
     }
 
     public Device assignDevice(UUID deviceId, UUID employeeId) {
         Device device = this.findById(deviceId);
-        if (device.getAvailability() != DeviceAvailability.AVAILABLE) {
-            throw new BadRequestException("Device is not available for assignment");
+        if (device.getAvailability() == DeviceAvailability.ASSIGNED) {
+            throw new DeviceAlreadyAssignedException(device.getEmployee().getId());
+        }
+        if (device.getAvailability() == DeviceAvailability.DECOMMISSIONED || device.getAvailability() == DeviceAvailability.UNDER_MAINTENANCE) {
+            throw new BadRequestException("This device cannot be assigned at the moment! We are sorry for the inconvenience.");
         }
 
         Employee employee = employeesDAO.findById(employeeId).orElseThrow(() -> new NotFoundException(employeeId));
         device.setEmployee(employee);
         device.setAvailability(DeviceAvailability.ASSIGNED);
         return devicesDAO.save(device);
+    }
+
+    public List<Device> getAllAssignedDevices() {
+        List<Device> assignedDevices = devicesDAO.findAllByAvailability(DeviceAvailability.ASSIGNED);
+        if (assignedDevices.isEmpty()) {
+            throw new NoAssignedDevicesException();
+        }
+        return assignedDevices;
     }
 }
